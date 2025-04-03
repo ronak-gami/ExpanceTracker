@@ -9,13 +9,19 @@ import {
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { SIDEBAR_WIDTH } from "../../utils/Constants";
+import { useAuth } from "../../context/AuthContext";
 
 const Sidebar = () => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [openModal, setOpenModal] = useState(false);
 
   const isActiveRoute = (path) => location.pathname === path;
+
+  const handleLogout = () => {
+    logout();
+    setOpenModal(false);
+  };
 
   const menuItems = [
     { path: "/", icon: "home", label: "Home" },
@@ -81,10 +87,7 @@ const Sidebar = () => {
             Cancel
           </Button>
           <Button
-            onClick={() => {
-              localStorage.clear();
-              navigate("/login");
-            }}
+            onClick={handleLogout}
             variant="contained"
             className="!bg-danger-DEFAULT hover:!bg-danger-dark ml-2"
             autoFocus

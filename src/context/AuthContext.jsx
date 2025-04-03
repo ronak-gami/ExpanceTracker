@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api";
 
 const AuthContext = createContext(null);
 
@@ -9,15 +10,15 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for authenticated user on mount
     const initializeAuth = () => {
       try {
-        const loggedUser = localStorage.getItem("loggedUser");
-        if (loggedUser) {
-          setUser(JSON.parse(loggedUser));
+        const token = localStorage.getItem("userToken");
+        const userData = localStorage.getItem("userData");
+        if (token && userData) {
+          setUser(JSON.parse(userData));
         }
       } catch (error) {
-        console.error("Error initializing auth:", error);
+        console.error("Auth initialization error:", error);
       } finally {
         setLoading(false);
       }
@@ -26,39 +27,63 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = async (userData) => {
+  const login = async (loginData) => {
     try {
-      setUser(userData);
-      localStorage.setItem("loggedUser", JSON.stringify(userData));
-      navigate("/");
+      const userData = localStorage.getItem("userData");
+      if (!userData) {
+        return { success: false, message: "User not found. Please register." };
+      }
+
+      const user = JSON.parse(userData);
+      if (user.email === loginData.email && user.password === loginData.password) {
+        const token = await api.post("/auth/login", {
+          username: "emilys",
+          password: "emilyspass",
+          expiresInMins: 30,
+        });
+        
+        localStorage.setItem("userToken", token);
+        setUser(user);
+        navigate("/");
+        return { success: true };
+      }
+      return { success: false, message: "Invalid credentials" };
     } catch (error) {
       console.error("Login error:", error);
-      throw error;
+      return { success: false, message: "Login failed" };
+    }
+  };
+
+  const register = async (registerData) => {
+    try {
+      localStorage.setItem("userData", JSON.stringify(registerData));
+      navigate("/login");
+      return { success: true };
+    } catch (error) {
+      console.error("Registration error:", error);
+      return { success: false, message: "Registration failed" };
     }
   };
 
   const logout = () => {
-    try {
-      setUser(null);
-      localStorage.removeItem("loggedUser");
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
-
-  const value = {
-    user,
-    login,
-    logout,
-    loading,
+    localStorage.removeItem("userToken");
+    setUser(null);
+    navigate("/login");
   };
 
   if (loading) {
-    return <div>Loading...</div>; // You can replace with a proper loading component
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-600 border-t-transparent"></div>
+      </div>
+    );
   }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

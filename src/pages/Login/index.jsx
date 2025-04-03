@@ -1,29 +1,40 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
+import { Formik, Form, Field } from "formik";
 import { useAuth } from "../../context/AuthContext";
+import { loginSchema } from "../../utils/validationSchemas";
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const user = users.find(
-      (u) =>
-        u.email === formData.email && atob(u.password) === formData.password
-    );
+  const initialValues = {
+    email: "",
+    password: "",
+  };
 
-    if (user) {
-      login(user);
-      navigate("/");
-    } else {
-      setError("Invalid email or password");
+  // const handleSubmit = async (values, { setSubmitting, setStatus }) => {
+  //   try {
+  //     const success = await login(values);
+  //     if (!success) {
+  //       setStatus('Invalid email or password');
+  //     }
+  //   } catch (error) {
+  //     setStatus('An error occurred during login');
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
+
+  const handleLogin = async (values, { setSubmitting, setStatus }) => {
+    try {
+      const result = await login(values);
+      if (!result.success) {
+        setStatus(result.message);
+      }
+    } catch (error) {
+      setStatus("An error occurred during login");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -38,68 +49,71 @@ const Login = () => {
             <p className="text-gray-500">Please sign in to continue</p>
           </div>
 
-          {error && (
-            <div className="mb-6 p-4 bg-error-light/10 border border-error-light text-error-DEFAULT rounded-lg">
-              {error}
-            </div>
-          )}
+          <Formik
+            initialValues={initialValues}
+            validationSchema={loginSchema}
+            onSubmit={handleLogin}
+          >
+            {({ errors, touched, status, isSubmitting }) => (
+              <Form className="space-y-6">
+                {status && (
+                  <div className="p-4 bg-error-light/10 border border-error-light text-error-DEFAULT rounded-lg">
+                    {status}
+                  </div>
+                )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                required
-              />
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
+                  </label>
+                  <Field
+                    name="email"
+                    type="email"
+                    className={`w-full px-4 py-3 rounded-lg border ${
+                      errors.email && touched.email
+                        ? "border-error-DEFAULT focus:ring-error-DEFAULT"
+                        : "border-gray-300 focus:ring-primary-500"
+                    } focus:ring-2 focus:border-transparent transition-colors`}
+                    placeholder="Enter your email"
+                  />
+                  {errors.email && touched.email && (
+                    <div className="mt-1 text-sm text-error-DEFAULT">
+                      {errors.email}
+                    </div>
+                  )}
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                required
-              />
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Password
+                  </label>
+                  <Field
+                    name="password"
+                    type="password"
+                    className={`w-full px-4 py-3 rounded-lg border ${
+                      errors.password && touched.password
+                        ? "border-error-DEFAULT focus:ring-error-DEFAULT"
+                        : "border-gray-300 focus:ring-primary-500"
+                    } focus:ring-2 focus:border-transparent transition-colors`}
+                    placeholder="Enter your password"
+                  />
+                  {errors.password && touched.password && (
+                    <div className="mt-1 text-sm text-error-DEFAULT">
+                      {errors.password}
+                    </div>
+                  )}
+                </div>
 
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
-              </label>
-              <a
-                href="#"
-                className="text-sm text-primary-600 hover:text-primary-700"
-              >
-                Forgot password?
-              </a>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 transition-colors"
-            >
-              Sign In
-            </button>
-          </form>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 transition-colors disabled:opacity-50"
+                >
+                  {isSubmitting ? "Signing in..." : "Sign In"}
+                </button>
+              </Form>
+            )}
+          </Formik>
 
           <p className="mt-6 text-center text-sm text-gray-600">
             Don't have an account?{" "}
