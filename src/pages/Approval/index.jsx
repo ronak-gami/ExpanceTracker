@@ -1,148 +1,167 @@
 import React, { useState, useEffect } from "react";
-import { SIDEBAR_WIDTH, MAIN_CONTENT_WIDTH } from "../../utils/Constants";
-import { Tab, Tabs } from "@mui/material";
 
 const Approval = () => {
-  const [activeTab, setActiveTab] = useState(0);
-  const [expenses, setExpenses] = useState([]);
-  const [trips, setTrips] = useState([]);
+  const [pendingExpenses, setPendingExpenses] = useState([]);
+  const [pendingTrips, setPendingTrips] = useState([]);
 
   useEffect(() => {
-    const savedExpenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-    const savedTrips = JSON.parse(localStorage.getItem("trips") || "[]");
-    
-    // Filter for pending items only
-    setExpenses(savedExpenses.filter(exp => exp.status === "Pending"));
-    setTrips(savedTrips.filter(trip => trip.status === "Pending"));
+    const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    const trips = JSON.parse(localStorage.getItem("trips") || "[]");
+
+    setPendingExpenses(
+      expenses.filter((expense) => expense.status === "Pending")
+    );
+    setPendingTrips(trips.filter((trip) => trip.status === "Pending"));
   }, []);
 
   const handleApprove = (type, id) => {
-    if (type === 'expense') {
-      const allExpenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-      const updatedExpenses = allExpenses.map(exp => 
-        exp.id === id ? { ...exp, status: "Approved" } : exp
+    if (type === "expense") {
+      const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+      const updatedExpenses = expenses.map((expense) =>
+        expense.id === id ? { ...expense, status: "Approved" } : expense
       );
       localStorage.setItem("expenses", JSON.stringify(updatedExpenses));
-      setExpenses(expenses.filter(exp => exp.id !== id));
+      setPendingExpenses(
+        updatedExpenses.filter((expense) => expense.status === "Pending")
+      );
     } else {
-      const allTrips = JSON.parse(localStorage.getItem("trips") || "[]");
-      const updatedTrips = allTrips.map(trip => 
+      const trips = JSON.parse(localStorage.getItem("trips") || "[]");
+      const updatedTrips = trips.map((trip) =>
         trip.id === id ? { ...trip, status: "Approved" } : trip
       );
       localStorage.setItem("trips", JSON.stringify(updatedTrips));
-      setTrips(trips.filter(trip => trip.id !== id));
+      setPendingTrips(updatedTrips.filter((trip) => trip.status === "Pending"));
     }
   };
 
   const handleReject = (type, id) => {
-    if (type === 'expense') {
-      const allExpenses = JSON.parse(localStorage.getItem("expenses") || "[]");
-      const updatedExpenses = allExpenses.map(exp => 
-        exp.id === id ? { ...exp, status: "Rejected" } : exp
+    if (type === "expense") {
+      const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+      const updatedExpenses = expenses.map((expense) =>
+        expense.id === id ? { ...expense, status: "Rejected" } : expense
       );
       localStorage.setItem("expenses", JSON.stringify(updatedExpenses));
-      setExpenses(expenses.filter(exp => exp.id !== id));
+      setPendingExpenses(
+        updatedExpenses.filter((expense) => expense.status === "Pending")
+      );
     } else {
-      const allTrips = JSON.parse(localStorage.getItem("trips") || "[]");
-      const updatedTrips = allTrips.map(trip => 
+      const trips = JSON.parse(localStorage.getItem("trips") || "[]");
+      const updatedTrips = trips.map((trip) =>
         trip.id === id ? { ...trip, status: "Rejected" } : trip
       );
       localStorage.setItem("trips", JSON.stringify(updatedTrips));
-      setTrips(trips.filter(trip => trip.id !== id));
+      setPendingTrips(updatedTrips.filter((trip) => trip.status === "Pending"));
     }
   };
 
   return (
-    <div className="w-full min-h-screen">
-      <div className={`w-[${MAIN_CONTENT_WIDTH}] ml-[${SIDEBAR_WIDTH}]`}>
-        <div className="flex justify-center items-center min-h-screen p-8">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-4xl">
-            <h1 className="text-2xl font-bold text-sky-600 mb-6">Approvals</h1>
-            
-            <Tabs value={activeTab} onChange={(e, val) => setActiveTab(val)}>
-              <Tab label="Expenses" />
-              <Tab label="Trips" />
-            </Tabs>
+    <div className="min-h-[calc(100vh-64px)] w-full p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="space-y-6">
+          {/* Header Section */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-800">Approvals</h1>
+            <p className="text-gray-600 mt-2">
+              Manage pending expenses and trips
+            </p>
+          </div>
 
-            {activeTab === 0 && (
-              <div className="mt-6">
-                <div className="grid grid-cols-7 gap-4 text-gray-700 mb-4">
-                  <p className="font-bold">DATE</p>
-                  <p className="font-bold">DETAILS</p>
-                  <p className="font-bold">CATEGORY</p>
-                  <p className="font-bold">AMOUNT</p>
-                  <p className="font-bold">STATUS</p>
-                  <p className="font-bold col-span-2">ACTIONS</p>
-                </div>
+          {/* Pending Expenses Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-blue-600 px-6 py-4">
+              <h2 className="text-xl font-semibold text-white">
+                Pending Expenses
+              </h2>
+            </div>
 
-                {expenses.length === 0 ? (
-                  <div className="bg-sky-100 p-4 rounded-lg text-center">
-                    <p className="text-gray-600">No pending expenses for approval</p>
-                  </div>
-                ) : (
-                  expenses.map((expense) => (
-                    <div key={expense.id} className="grid grid-cols-7 gap-4 items-center border-b py-4">
-                      <p>{new Date(expense.date).toLocaleDateString()}</p>
-                      <p>{expense.details}</p>
-                      <p>{expense.category}</p>
-                      <p>${expense.amount}</p>
-                      <p>{expense.status}</p>
-                      <button
-                        onClick={() => handleApprove('expense', expense.id)}
-                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleReject('expense', expense.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
-                      >
-                        Reject
-                      </button>
+            {pendingExpenses.length === 0 ? (
+              <div className="p-12 text-center text-gray-500 bg-gray-50/50">
+                <p className="text-lg">No pending expenses to approve</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {pendingExpenses.map((expense) => (
+                  <div key={expense.id} className="p-4 hover:bg-gray-50">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {expense.details}
+                        </h3>
+                        <p className="text-gray-600 mt-1">
+                          Amount: ${expense.amount} • Category:{" "}
+                          {expense.category}
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Date: {new Date(expense.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={() => handleReject("expense", expense.id)}
+                          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                        >
+                          Reject
+                        </button>
+                        <button
+                          onClick={() => handleApprove("expense", expense.id)}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        >
+                          Approve
+                        </button>
+                      </div>
                     </div>
-                  ))
-                )}
+                  </div>
+                ))}
               </div>
             )}
+          </div>
 
-            {activeTab === 1 && (
-              <div className="mt-6">
-                <div className="grid grid-cols-7 gap-4 text-gray-700 mb-4">
-                  <p className="font-bold">SOURCE</p>
-                  <p className="font-bold">DESTINATION</p>
-                  <p className="font-bold">FROM</p>
-                  <p className="font-bold">TO</p>
-                  <p className="font-bold">DETAILS</p>
-                  <p className="font-bold col-span-2">ACTIONS</p>
-                </div>
+          {/* Pending Trips Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-blue-600 px-6 py-4">
+              <h2 className="text-xl font-semibold text-white">
+                Pending Trips
+              </h2>
+            </div>
 
-                {trips.length === 0 ? (
-                  <div className="bg-sky-100 p-4 rounded-lg text-center">
-                    <p className="text-gray-600">No pending trips for approval</p>
-                  </div>
-                ) : (
-                  trips.map((trip) => (
-                    <div key={trip.id} className="grid grid-cols-7 gap-4 items-center border-b py-4">
-                      <p>{trip.source}</p>
-                      <p>{trip.destination}</p>
-                      <p>{new Date(trip.fromDate).toLocaleDateString()}</p>
-                      <p>{new Date(trip.toDate).toLocaleDateString()}</p>
-                      <p>{trip.details}</p>
-                      <button
-                        onClick={() => handleApprove('trip', trip.id)}
-                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleReject('trip', trip.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
-                      >
-                        Reject
-                      </button>
+            {pendingTrips.length === 0 ? (
+              <div className="p-12 text-center text-gray-500 bg-gray-50/50">
+                <p className="text-lg">No pending trips to approve</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {pendingTrips.map((trip) => (
+                  <div key={trip.id} className="p-4 hover:bg-gray-50">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {trip.destination}
+                        </h3>
+                        <p className="text-gray-600 mt-1">
+                          From: {trip.source}
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {new Date(trip.fromDate).toLocaleDateString()} -{" "}
+                          {new Date(trip.toDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={() => handleReject("trip", trip.id)}
+                          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                        >
+                          Reject
+                        </button>
+                        <button
+                          onClick={() => handleApprove("trip", trip.id)}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        >
+                          Approve
+                        </button>
+                      </div>
                     </div>
-                  ))
-                )}
+                  </div>
+                ))}
               </div>
             )}
           </div>

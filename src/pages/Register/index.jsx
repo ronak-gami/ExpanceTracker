@@ -1,20 +1,14 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
-import { useAuth } from "../../context/AuthContext";
 import { registerSchema } from "../../utils/validationSchemas";
+import { useAuth } from "../../context/AuthContext";
+import PasswordField from "../../components/PasswordField";
 
 const Register = () => {
-  const [profilePic, setProfilePic] = useState("");
   const { register } = useAuth();
   const navigate = useNavigate();
-
-  const initialValues = {
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  };
+  const [profilePic, setProfilePic] = useState("");
 
   const handleSubmit = async (values, { setSubmitting, setStatus }) => {
     try {
@@ -47,45 +41,50 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen min-w-full flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 py-12 px-4">
-      <div className="max-w-xl w-full">
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Create Account
-            </h1>
-            <p className="text-gray-500">Join us today!</p>
+    <div className="min-h-screen w-full p-6 bg-gray-50 flex items-center justify-center">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          {/* Header */}
+          <div className="bg-blue-600 px-6 py-4">
+            <h1 className="text-xl font-semibold text-white">Create Account</h1>
           </div>
 
+          {/* Form */}
           <Formik
-            initialValues={initialValues}
+            initialValues={{
+              username: "",
+              email: "",
+              password: "",
+              confirmPassword: "",
+            }}
             validationSchema={registerSchema}
             onSubmit={handleSubmit}
           >
-            {({ errors, touched, isSubmitting, status }) => (
-              <Form className="space-y-6">
+            {({ errors, touched, status, isSubmitting }) => (
+              <Form className="p-6 space-y-6">
                 {status && (
-                  <div className="p-4 bg-error-light/10 border border-error-light text-error-DEFAULT rounded-lg">
+                  <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg">
                     {status}
                   </div>
                 )}
 
+                {/* Profile Picture */}
                 <div className="text-center">
-                  <div className="w-32 h-32 mx-auto mb-4 relative">
+                  <div className="w-32 h-32 mx-auto relative">
                     {profilePic ? (
                       <img
                         src={profilePic}
                         alt="Profile Preview"
-                        className="w-full h-full rounded-full object-cover border-4 border-primary-200"
+                        className="w-full h-full rounded-full object-cover border-4 border-gray-200"
                       />
                     ) : (
-                      <div className="w-full h-full rounded-full bg-primary-50 flex items-center justify-center border-4 border-primary-200">
-                        <span className="text-primary-500 text-4xl">?</span>
+                      <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center border-4 border-gray-200">
+                        <span className="text-gray-500 text-4xl">?</span>
                       </div>
                     )}
                     <label
                       htmlFor="profile-pic"
-                      className="absolute bottom-0 right-0 bg-primary-600 text-white p-2 rounded-full cursor-pointer hover:bg-primary-700 transition-colors"
+                      className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700"
                     >
                       <svg
                         className="w-5 h-5"
@@ -111,7 +110,8 @@ const Register = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-6">
+                  {/* Form Fields */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Username
@@ -119,14 +119,14 @@ const Register = () => {
                     <Field
                       type="text"
                       name="username"
-                      className={`w-full px-4 py-3 rounded-lg border ${
+                      className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                         errors.username && touched.username
-                          ? "border-error-DEFAULT focus:ring-error-DEFAULT"
-                          : "border-gray-300 focus:ring-primary-500"
-                      } focus:ring-2 focus:border-transparent transition-colors`}
+                          ? "border-red-500"
+                          : ""
+                      }`}
                     />
                     {errors.username && touched.username && (
-                      <p className="mt-1 text-sm text-error-DEFAULT">
+                      <p className="mt-1 text-sm text-red-600">
                         {errors.username}
                       </p>
                     )}
@@ -139,80 +139,54 @@ const Register = () => {
                     <Field
                       type="email"
                       name="email"
-                      className={`w-full px-4 py-3 rounded-lg border ${
-                        errors.email && touched.email
-                          ? "border-error-DEFAULT focus:ring-error-DEFAULT"
-                          : "border-gray-300 focus:ring-primary-500"
-                      } focus:ring-2 focus:border-transparent transition-colors`}
+                      className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                        errors.email && touched.email ? "border-red-500" : ""
+                      }`}
                     />
                     {errors.email && touched.email && (
-                      <p className="mt-1 text-sm text-error-DEFAULT">
+                      <p className="mt-1 text-sm text-red-600">
                         {errors.email}
                       </p>
                     )}
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Password
-                    </label>
-                    <Field
-                      type="password"
-                      name="password"
-                      className={`w-full px-4 py-3 rounded-lg border ${
-                        errors.password && touched.password
-                          ? "border-error-DEFAULT focus:ring-error-DEFAULT"
-                          : "border-gray-300 focus:ring-primary-500"
-                      } focus:ring-2 focus:border-transparent transition-colors`}
-                    />
-                    {errors.password && touched.password && (
-                      <p className="mt-1 text-sm text-error-DEFAULT">
-                        {errors.password}
-                      </p>
-                    )}
-                  </div>
+                  <PasswordField
+                    name="password"
+                    label="Password"
+                    error={errors.password}
+                    touched={touched.password}
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Confirm Password
-                    </label>
-                    <Field
-                      type="password"
-                      name="confirmPassword"
-                      className={`w-full px-4 py-3 rounded-lg border ${
-                        errors.confirmPassword && touched.confirmPassword
-                          ? "border-error-DEFAULT focus:ring-error-DEFAULT"
-                          : "border-gray-300 focus:ring-primary-500"
-                      } focus:ring-2 focus:border-transparent transition-colors`}
-                    />
-                    {errors.confirmPassword && touched.confirmPassword && (
-                      <p className="mt-1 text-sm text-error-DEFAULT">
-                        {errors.confirmPassword}
-                      </p>
-                    )}
-                  </div>
+                  <PasswordField
+                    name="confirmPassword"
+                    label="Confirm Password"
+                    error={errors.confirmPassword}
+                    touched={touched.confirmPassword}
+                  />
+                </div>
 
+                <div className="flex flex-col space-y-4">
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 transition-colors disabled:opacity-50"
+                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                   >
                     {isSubmitting ? "Creating Account..." : "Create Account"}
                   </button>
+
+                  <p className="text-center text-sm text-gray-600">
+                    Already have an account?{" "}
+                    <Link
+                      to="/login"
+                      className="text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Sign In
+                    </Link>
+                  </p>
                 </div>
               </Form>
             )}
           </Formik>
-
-          <p className="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-primary-600 hover:text-primary-700 font-medium"
-            >
-              Sign in
-            </Link>
-          </p>
         </div>
       </div>
     </div>

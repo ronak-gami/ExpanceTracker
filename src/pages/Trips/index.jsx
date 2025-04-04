@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { SIDEBAR_WIDTH, MAIN_CONTENT_WIDTH } from "../../utils/Constants";
 
 const Trips = () => {
@@ -16,52 +17,79 @@ const Trips = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-100">
-      <div className={`w-[${MAIN_CONTENT_WIDTH}] ml-[${SIDEBAR_WIDTH}]`}>
-        <div className="flex justify-center items-center min-h-screen p-8">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-4xl">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold text-sky-600">Trips</h1>
-              <a
-                href="/newtrips"
-                className="bg-sky-500 text-white px-4 py-2 rounded-lg hover:bg-sky-700 transition"
-              >
-                <i className="fas fa-plus"></i> New Trip
-              </a>
+    <div className="min-h-[calc(100vh-64px)] w-full p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="space-y-6">
+          {/* Header Section */}
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-800">Trips</h1>
+            <Link
+              to="/newtrips"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            >
+              <span className="mr-2">+</span>
+              Add New Trip
+            </Link>
+          </div>
+
+          {/* Table Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            {/* Table Header */}
+            <div className="grid grid-cols-6 gap-4 p-4 border-b border-gray-200 bg-gray-50">
+              <div className="font-semibold text-gray-600">Date</div>
+              <div className="font-semibold text-gray-600">Destination</div>
+              <div className="font-semibold text-gray-600">Source</div>
+              <div className="font-semibold text-gray-600">Duration</div>
+              <div className="font-semibold text-gray-600">Status</div>
+              <div className="font-semibold text-gray-600">Actions</div>
             </div>
 
-            <div className="grid grid-cols-6 gap-4 text-gray-700">
-              <p className="font-bold">SOURCE</p>
-              <p className="font-bold">DESTINATION</p>
-              <p className="font-bold">FROM DATE</p>
-              <p className="font-bold">TO DATE</p>
-              <p className="font-bold">DETAILS</p>
-              <p className="font-bold">STATUS</p>
-            </div>
-
+            {/* Table Body */}
             {trips.length === 0 ? (
-              <div className="bg-sky-100 p-4 rounded-lg mt-4 shadow-md text-center">
-                <p className="text-gray-600">No trips found. Add a new trip!</p>
+              <div className="p-12 text-center text-gray-500 bg-gray-50/50">
+                <p className="text-lg">No trips found.</p>
+                <p className="text-sm mt-2">Add your first trip to get started!</p>
               </div>
             ) : (
-              trips.map((trip) => (
-                <div
-                  key={trip.id}
-                  className="grid grid-cols-6 gap-4 items-center border-b py-4"
-                >
-                  <p>{trip.source}</p>
-                  <p>{trip.destination}</p>
-                  <p>{new Date(trip.fromDate).toLocaleDateString()}</p>
-                  <p>{new Date(trip.toDate).toLocaleDateString()}</p>
-                  <p>{trip.details}</p>
-                  <button
-                    onClick={() => handleDelete(trip.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+              <div className="divide-y divide-gray-200">
+                {trips.map((trip) => (
+                  <div
+                    key={trip.id}
+                    className="grid grid-cols-6 gap-4 p-4 items-center hover:bg-gray-50 transition-colors"
                   >
-                    <i className="fas fa-trash mr-1"></i> Delete
-                  </button>
-                </div>
-              ))
+                    <div className="text-gray-600">
+                      {new Date(trip.fromDate).toLocaleDateString()}
+                    </div>
+                    <div className="text-gray-800 font-medium">
+                      {trip.destination}
+                    </div>
+                    <div className="text-gray-600">{trip.source}</div>
+                    <div className="text-gray-800">
+                      {new Date(trip.fromDate).toLocaleDateString()} -{" "}
+                      {new Date(trip.toDate).toLocaleDateString()}
+                    </div>
+                    <div>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm ${
+                          trip.status === "Approved"
+                            ? "bg-green-100 text-green-800"
+                            : trip.status === "Pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {trip.status}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleDelete(trip.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>

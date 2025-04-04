@@ -3,14 +3,10 @@ import { Link } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
 import { useAuth } from "../../context/AuthContext";
 import { loginSchema } from "../../utils/validationSchemas";
+import PasswordField from "../../components/PasswordField";
 
 const Login = () => {
   const { login } = useAuth();
-
-  const initialValues = {
-    email: "",
-    password: "",
-  };
 
   // const handleSubmit = async (values, { setSubmitting, setStatus }) => {
   //   try {
@@ -37,93 +33,78 @@ const Login = () => {
       setSubmitting(false);
     }
   };
-
   return (
-    <div className="min-h-screen min-w-full flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
-      <div className="max-w-md w-full mx-4">
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome Back
-            </h1>
-            <p className="text-gray-500">Please sign in to continue</p>
+    <div className="min-h-screen w-full p-6 bg-gray-50 flex items-center justify-center">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          {/* Header */}
+          <div className="bg-blue-600 px-6 py-4">
+            <h1 className="text-xl font-semibold text-white">Welcome Back</h1>
           </div>
 
+          {/* Form */}
           <Formik
-            initialValues={initialValues}
+            initialValues={{ email: "", password: "" }}
             validationSchema={loginSchema}
             onSubmit={handleLogin}
           >
             {({ errors, touched, status, isSubmitting }) => (
-              <Form className="space-y-6">
+              <Form className="p-6 space-y-6">
                 {status && (
-                  <div className="p-4 bg-error-light/10 border border-error-light text-error-DEFAULT rounded-lg">
+                  <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg">
                     {status}
                   </div>
                 )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  <Field
-                    name="email"
-                    type="email"
-                    className={`w-full px-4 py-3 rounded-lg border ${
-                      errors.email && touched.email
-                        ? "border-error-DEFAULT focus:ring-error-DEFAULT"
-                        : "border-gray-300 focus:ring-primary-500"
-                    } focus:ring-2 focus:border-transparent transition-colors`}
-                    placeholder="Enter your email"
-                  />
-                  {errors.email && touched.email && (
-                    <div className="mt-1 text-sm text-error-DEFAULT">
-                      {errors.email}
-                    </div>
-                  )}
-                </div>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email
+                    </label>
+                    <Field
+                      type="email"
+                      name="email"
+                      className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                        errors.email && touched.email ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.email && touched.email && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.email}
+                      </p>
+                    )}
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
-                  </label>
-                  <Field
+                  <PasswordField
                     name="password"
-                    type="password"
-                    className={`w-full px-4 py-3 rounded-lg border ${
-                      errors.password && touched.password
-                        ? "border-error-DEFAULT focus:ring-error-DEFAULT"
-                        : "border-gray-300 focus:ring-primary-500"
-                    } focus:ring-2 focus:border-transparent transition-colors`}
-                    placeholder="Enter your password"
+                    label="Password"
+                    error={errors.password}
+                    touched={touched.password}
                   />
-                  {errors.password && touched.password && (
-                    <div className="mt-1 text-sm text-error-DEFAULT">
-                      {errors.password}
-                    </div>
-                  )}
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 transition-colors disabled:opacity-50"
-                >
-                  {isSubmitting ? "Signing in..." : "Sign In"}
-                </button>
+                <div className="flex flex-col space-y-4">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {isSubmitting ? "Signing in..." : "Sign In"}
+                  </button>
+
+                  <p className="text-center text-sm text-gray-600">
+                    Don't have an account?{" "}
+                    <Link
+                      to="/register"
+                      className="text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Create Account
+                    </Link>
+                  </p>
+                </div>
               </Form>
             )}
           </Formik>
-
-          <p className="mt-6 text-center text-sm text-gray-600">
-            Don't have an account?{" "}
-            <Link
-              to="/register"
-              className="text-primary-600 hover:text-primary-700 font-medium"
-            >
-              Sign up now
-            </Link>
-          </p>
         </div>
       </div>
     </div>

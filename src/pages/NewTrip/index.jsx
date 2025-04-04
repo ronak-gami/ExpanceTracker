@@ -1,135 +1,119 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SIDEBAR_WIDTH, MAIN_CONTENT_WIDTH } from "../../utils/Constants";
 
 const NewTrip = () => {
   const navigate = useNavigate();
-  const [tripData, setTripData] = useState({
-    source: "",
+  const [formData, setFormData] = useState({
     destination: "",
-    fromDate: "",
-    toDate: "",
-    details: "",
+    source: "",
+    fromDate: new Date().toISOString().split("T")[0],
+    toDate: new Date().toISOString().split("T")[0],
     status: "Pending",
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const trips = JSON.parse(localStorage.getItem("trips") || "[]");
     const newTrip = {
-      ...tripData,
+      ...formData,
       id: Date.now(),
     };
-
-    const existingTrips = JSON.parse(localStorage.getItem("trips") || "[]");
-    const updatedTrips = [...existingTrips, newTrip];
-    localStorage.setItem("trips", JSON.stringify(updatedTrips));
+    trips.push(newTrip);
+    localStorage.setItem("trips", JSON.stringify(trips));
     navigate("/trips");
   };
 
-  const handleChange = (e) => {
-    setTripData({
-      ...tripData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
   return (
-    <div className="w-full min-h-screen bg-gray-100">
-      <div className={`w-[${MAIN_CONTENT_WIDTH}] ml-[${SIDEBAR_WIDTH}]`}>
-        <div className="flex justify-center items-center min-h-screen p-8">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-4xl">
-            <h2 className="text-2xl font-bold text-sky-600 mb-6">
-              Create New Trip
-            </h2>
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-700 mb-2">Source</label>
-                    <input
-                      type="text"
-                      name="source"
-                      value={tripData.source}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border rounded-lg"
-                      placeholder="Enter source location"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-700 mb-2">
-                      Destination
-                    </label>
-                    <input
-                      type="text"
-                      name="destination"
-                      value={tripData.destination}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border rounded-lg"
-                      placeholder="Enter destination"
-                      required
-                    />
-                  </div>
-                </div>
+    <div className="min-h-[calc(100vh-64px)] w-full p-6">
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          {/* Header */}
+          <div className="bg-blue-600 px-6 py-4">
+            <h1 className="text-xl font-semibold text-white">Create New Trip</h1>
+          </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-700 mb-2">
-                      From Date
-                    </label>
-                    <input
-                      type="date"
-                      name="fromDate"
-                      value={tripData.fromDate}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border rounded-lg"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-700 mb-2">To Date</label>
-                    <input
-                      type="date"
-                      name="toDate"
-                      value={tripData.toDate}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border rounded-lg"
-                      required
-                    />
-                  </div>
-                </div>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Destination
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.destination}
+                  onChange={(e) =>
+                    setFormData({ ...formData, destination: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Source
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.source}
+                  onChange={(e) =>
+                    setFormData({ ...formData, source: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-700 mb-2">Details</label>
-                  <textarea
-                    name="details"
-                    value={tripData.details}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border rounded-lg"
-                    rows="4"
-                    placeholder="Enter trip details"
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    From Date
+                  </label>
+                  <input
+                    type="date"
                     required
+                    value={formData.fromDate}
+                    onChange={(e) =>
+                      setFormData({ ...formData, fromDate: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
-                <div className="flex justify-end space-x-4 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => navigate("/trips")}
-                    className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition"
-                  >
-                    Create Trip
-                  </button>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    To Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.toDate}
+                    onChange={(e) =>
+                      setFormData({ ...formData, toDate: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
                 </div>
               </div>
-            </form>
-          </div>
+            </div>
+
+            <div className="flex justify-end space-x-4 pt-4">
+              <button
+                type="button"
+                onClick={() => navigate("/trips")}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Create Trip
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

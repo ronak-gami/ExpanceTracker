@@ -33,36 +33,36 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside
-      className={`bg-background-light border-r border-secondary-DEFAULT w-[${SIDEBAR_WIDTH}] fixed left-0 top-16 h-[calc(100vh-64px)] shadow-card overflow-y-auto flex flex-col`}
-    >
-      <nav className="flex flex-col p-4 flex-grow">
-        {menuItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`flex items-center p-3 rounded-lg transition-all duration-200 ${
-              isActiveRoute(item.path)
-                ? "bg-primary-light/10 text-primary-DEFAULT"
-                : "text-text-secondary hover:bg-secondary-light"
-            }`}
-          >
-            <i className={`fa fa-${item.icon} mr-3`}></i> {item.label}
-          </Link>
-        ))}
-      </nav>
+    <aside className="bg-white border-r border-gray-200 h-[calc(100vh-4rem)] w-64 fixed left-0 top-16 overflow-y-auto">
+      <div className="flex flex-col h-full">
+        <nav className="flex-1 p-4">
+          {menuItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center px-4 py-3 rounded-lg mb-1 transition-colors ${
+                isActiveRoute(item.path)
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <i className={`fa fa-${item.icon} mr-3`}></i> {item.label}
+            </Link>
+          ))}
+        </nav>
 
-      <div className="p-4 border-t border-secondary-DEFAULT">
-        <Button
-          variant="contained"
-          color="error"
-          fullWidth
-          startIcon={<LogoutIcon />}
-          onClick={() => setOpenModal(true)}
-          className="!bg-danger-DEFAULT hover:!bg-danger-dark normal-case"
-        >
-          Logout
-        </Button>
+        <div className="p-4 border-t border-gray-200">
+          <Button
+            variant="contained"
+            color="error"
+            fullWidth
+            startIcon={<LogoutIcon />}
+            onClick={() => setOpenModal(true)}
+            className="bg-red-600 hover:bg-red-700 normal-case"
+          >
+            Logout
+          </Button>
+        </div>
       </div>
 
       <Dialog
